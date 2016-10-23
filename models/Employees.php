@@ -35,9 +35,9 @@ class Employees extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'bd', 'blood', 'cid', 'ex', 'sex', 'addr', 'tel', 'social', 'satatus'], 'required'],
-            [['sex'], 'string'],
-            [['name', 'bd', 'ex', 'addr', 'tel', 'social', 'satatus'], 'string', 'max' => 255],
+            [[ 'bd', 'ex', 'social'], 'safe'],
+            [['sex','addr'], 'string'],
+            [['name','tel','marry', 'satatus'], 'string', 'max' => 255],
             [['blood'], 'string', 'max' => 2],
             [['cid'], 'string', 'max' => 13],
         ];
@@ -50,16 +50,66 @@ class Employees extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Name',
-            'bd' => 'Bd',
-            'blood' => 'Blood',
-            'cid' => 'Cid',
-            'ex' => 'Ex',
-            'sex' => 'Sex',
-            'addr' => 'Addr',
-            'tel' => 'Tel',
+            'name' => 'ชื่อ สกุล',
+            'bd' => 'อายุ',
+            'blood' => 'กรุบเลือด',
+            'cid' => 'เลขประจำตัว',
+            'ex' => 'ประสบการณ์',
+            'sex' => 'เพศ',
+            'addr' => 'ที่อยู่',
+            'tel' => 'เบอร์โทร',
             'social' => 'Social',
-            'satatus' => 'Satatus',
+            'satatus' => 'สถาภาพ',
         ];
     }
-}
+    public function getArray($value) {
+        return explode(',', $value);
+    }
+    public function setToArray($value) {
+        return is_array($value) ? implode(',', $value) : NULL;
+    }
+    public function beforeSave($insert) {
+        if (parent::beforeSave($insert)) {
+            if (!empty($this->ex)) {
+                $this->ex = $this->setToArray($this->ex);
+                $this->social = $this->setToArray($this->social);
+               
+                
+            }
+            return true;
+        } else {
+            return false;
+        }
+                
+    }
+    public static function itemAlias($type, $code = NULL) {
+        $_items = array(
+            'blood'=> array(
+                'a' => 'A',
+                'b' => 'B',
+                'o' => 'O',
+                'ab' => 'AB',
+                '9'=>'ไม่ทราบ'
+            ),
+            'ex' => array(
+                'php' => 'PHP',
+                'yii' => 'YII',
+                'access'=>'Access'
+            ),
+            'social' => array(
+                'fb' => 'FaceBook',
+                'line' => 'Line',
+                'google' => 'GooglePlus',
+                'msn' => 'MSN',
+                
+            ),
+        );
+        if (isset($code)) {
+            return isset($_items[$type][$code]) ? $_items[$type][$code] : false;
+        } else {
+            return isset($_items[$type]) ? $_items[$type] : false;
+        }
+    }
+        
+    }
+

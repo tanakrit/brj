@@ -83,6 +83,8 @@ class EmployeesController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $model->ex = $model->getArray($model->ex);
+        $model->social = $model->getArray($model->social);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
